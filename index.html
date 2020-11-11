@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body onload="init()">
+<script>
+
+var canvas;
+var vectors = [];
+
+// acceleration due to gravity, positive due to inverted coordinate system. 
+// units - px/20ms^2 :D
+const g = 0.1;
+// Coefficient of thermal/mechanical energy losses due to impact
+const Ct = 0.7;
+// Coefficient of air drag
+const Ca = 0.99;
+// Maximum speed(per-axis) on start
+// units px/20ms
+const Vinit = 5;
+
+function init() {
+    drawCanvas();
+    setInterval(refreshCanvas, 20);
+    addClickEventListener();
+}
+
+function drawCanvas() {
+	canvas = document.createElement("canvas");
+    canvas.style = "border:1px solid darkgray;background-color: lightgray;";
+    canvas.height = 500;
+    canvas.width = 1000;
+    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+}
+
+function refreshCanvas() {
+	// clear the full canvas rectangle
+	canvas.getContext("2d").clearRect(0, 0, this.canvas.width, this.canvas.height);
+    vectors.forEach(moveAndDrawVect);
+}
+
+function addClickEventListener() {
+	canvas.addEventListener('mousedown', function(e) {
+    	const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+		const y = event.clientY - rect.top;
+        handleClickEvent(x, y);
+	});
+}
+
+function handleClickEvent(x, y) {
+	vectors.push(new Vect(x, y, randomIntFromInterval(-Vinit, Vinit), randomIntFromInterval(-Vinit, Vinit)));
+}
+
+function randomIntFromInterval(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function Vect(x, y, Vx, Vy) {
+    this.x = x;
+    this.y = y;    
+    this.Vx = Vx;
+    this.Vy = Vy;    
+    
+    this.move = function() {
+        this.Vy += g;
+        this.Vx *= Ca;
+        this.x += this.Vx;
+        this.y += this.Vy;
+        
+        if(this.y > canvas.height) {
+        	this.y = canvas.height;
+            this.Vy = -(this.Vy * Ct);
+        }
+    }
+}
+
+function moveAndDrawVect(vect) {
+	vect.move();
+    drawVectorAsCircle(vect, 10);
+}
+
+function drawVectorAsCircle(vect, radius) {
+	ctx = canvas.getContext("2d");
+    ctx.beginPath();
+    ctx.arc(vect.x, vect.y-radius, radius, 0, 2 * Math.PI);
+	ctx.stroke(); 
+}
+
+</script>
+</body>
+</html>
