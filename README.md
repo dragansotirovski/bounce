@@ -5,6 +5,7 @@ Spec:
 
 
 Run & Test:
+
     1. NodeJs is installed 
         If nodejs is installed on the machine, simply run `node app` in the root folder of the app
         Go to `<LOCALHOST>:3000` in the browser and enjoy.
